@@ -49,11 +49,10 @@ def copy_location(new_node, old_node):
     return new_node
 
 
-def parse_stream(stream, filename="<unknown>", mode="exec"):
+def parse_tokens(token_stream, filename="<unknown>", mode="exec"):
     import utokenize as tokenize
     from . import parser
-    tstream = tokenize.tokenize(stream.readline)
-    p = parser.Parser(tstream)
+    p = parser.Parser(token_stream)
     p.match(tokenize.ENCODING)
     if mode == "exec":
         t = p.match_mod()
@@ -64,6 +63,12 @@ def parse_stream(stream, filename="<unknown>", mode="exec"):
     else:
         raise ValueError
     return t
+
+
+def parse_stream(stream, filename="<unknown>", mode="exec"):
+    import utokenize as tokenize
+    tstream = tokenize.tokenize(stream.readline)
+    return parse_tokens(tstream)
 
 
 def parse(source, filename="<unknown>", mode="exec"):
