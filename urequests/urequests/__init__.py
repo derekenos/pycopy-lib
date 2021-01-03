@@ -107,7 +107,24 @@ def request(method, url, data=None, json=None, headers={}, stream=None, parse_he
                     if not redir_cnt:
                         raise ValueError("Too many redirects")
                     redir_cnt -= 1
-                    url = l[9:].decode().strip()
+                    location = l[9:].decode().strip()
+                    if (location.startswith("http://")
+                        or location.startswith("https://")):
+                        # Location is an absolute URL.
+                        url = location
+                    elif location.startswith("//"):
+                        # Location is a proto-relative absolute URL.
+                        url = proto + location
+                    elif location.startswith("/"):
+                        # Location is a host-relative absolute path.
+                        url = proto + "//" + host + location
+                    else:
+                        # Location is a path-relative relative path.
+                        if "/" in path:
+                            path = path[:path.rindex("/")] + "/" + location
+                        else:
+                            path = location
+                        url = proto + "//" + host + "/" + path
                     #print("redir to:", url)
                     status = 300
                     break
